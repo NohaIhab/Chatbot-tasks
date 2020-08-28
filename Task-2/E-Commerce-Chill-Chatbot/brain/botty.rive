@@ -1,0 +1,161 @@
+! version= 2.0
+
++ (hi|hello)
+- What would you like to do from the following:\n
+^1)Check what's new\n
+^2)Place an order\n
+^3)Check order status\n
+^4)Cancel order\n
+^5)Other\n {topic=choice}
+
+
+
+> topic choice
++ 1
+- Here are our newest items in stock
+^1)Apple Macbook Pro -  49999$
+^2)Lenovo Ideapad - 8000$
+^3)asus rog - 1500$
+^4)mouse - 500$
+^5)keyboard - 600$
+
++ return to the main menu
+-- What would you like to do from the following:\n
+^1)Check what's new\n
+^2)Place an order\n
+^3)Check order status\n
+^4)Cancel order\n
+^5)Other\n {topic=choice}
+
++ 2
+- Please enter your login ID {topic=login}
+
++ 3
+- Please enter you order number {topic=order_status}
+
++ 4
+-Please enter you order number {topic=order_cancel}
+
++ 5
+- Type your questions here {topic=message}
+
+<topic
+
+> topic login
++ *
+*<set username=<star>><call>checkID <star></call> == True => Select the item you want.{topic=select_item}
+^1)Apple Macbook Pro -  49999$
+^2)Lenovo Ideapad - 8000$
+^3)asus rog - 1500$
+^4)mouse - 500$
+^5)keyboard - 600$
+
+*<set username=<star>><call>checkID <star></call> == False => "Please enter your id again." {topic=login}
+< topic
+
+> topic message
++ *
+- Your message has been sent, an agent will get back to you. <call>savemsg <star></call> {topic=choice}
++ return to the main menu
+-- What would you like to do from the following:\n
+^1)Check what's new\n
+^2)Place an order\n
+^3)Check order status\n
+^4)Cancel order\n
+^5)Other\n {topic=choice}
+< topic
+
++ *
+-Sorry, I don't have an answer for that.
+
+
+>topic select_item
++#
+-<call>add_order <star></call>
++ i want to add another item
+-Please add the item number*
++#
+-<call>add_order <star></call>
++ return to the main menu
+-- What would you like to do from the following:\n
+^1)Check what's new\n
+^2)Place an order\n
+^3)Check order status\n
+^4)Cancel order\n
+^5)Other\n {topic=choice}
+<topic
+
+>topic order_status
++#
+-<call>order_status <star></call>
++ return to the main menu
+-- What would you like to do from the following:\n
+^1)Check what's new\n
+^2)Place an order\n
+^3)Check order status\n
+^4)Cancel order\n
+^5)Other\n {topic=choice}
+<topic
+
+
+>topic order_cancel
++#
+-<call>order_cancel <star></call>
++ return to the main menu
+-- What would you like to do from the following:\n
+^1)Check what's new\n
+^2)Place an order\n
+^3)Check order status\n
+^4)Cancel order\n
+^5)Other\n {topic=choice}
+<topic
+
+> object add_order python
+  import database
+  add=database.add_order(str(args[0])) 
+  return 'item added successfuly .{}'.format(add)
+  < object
+
+> object order_status python
+  import database
+  check=database.get_order(str(args[0]))
+  return check
+< object
+
+
+
+> object order_cancel python
+  import database
+  delete=database.delete_order(str(args[0]))
+  return "deleted"
+< object
+
+
+
+
+
+
+> object getNew python
+  import database
+  items = database.getNew()
+  items_name [10]
+  for i in items:
+    items_name [10] = str(i['name']) 
+  return  items_name[10]
+     
+  
+< object
+
+> object checkID python
+  import database
+  user=database.checkID(str(args[0]))
+  if user:
+    return True
+  else:
+    return False
+< object
+
+> object savemsg python
+  import database
+  database.savemsg(str(args[0]))
+< object
